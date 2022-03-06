@@ -1,3 +1,13 @@
-const add = (a: number, b: number) => a + b;
+import { MongoClient } from 'mongodb';
 
-console.log(add(2, 2));
+import { mongoConfig } from '@config';
+
+MongoClient.connect(mongoConfig.url, (error, client) => {
+  if (error) {
+    return console.error(error);
+  }
+
+  const db = client?.db();
+  db?.collection('users').insertOne({ name: 'RouSage', age: 24 });
+  return console.log('Connected correctly');
+});
