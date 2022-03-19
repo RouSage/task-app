@@ -6,7 +6,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "node -r dotenv/config dist/app.js",
+    "start": "node -r dotenv/config dist/index.js",
     "start:dev": "nodemon -r dotenv/config -r tsconfig-paths/register src/index.ts",
     "build": "rimraf ./dist && tsc",
     "lint": "run-p lint:*",
@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "dotenv": "^16.0.0",
+    "express": "^4.17.3",
     "mongodb": "^4.4.1",
     "mongoose": "^6.2.6",
     "validator": "^13.7.0"
@@ -24,6 +25,7 @@
   "devDependencies": {
     "@commitlint/cli": "^16.2.1",
     "@commitlint/config-conventional": "^16.2.1",
+    "@types/express": "^4.17.13",
     "@types/node": "^17.0.21",
     "@types/validator": "^13.7.1",
     "@typescript-eslint/eslint-plugin": "^5.13.0",
