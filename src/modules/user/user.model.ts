@@ -1,9 +1,12 @@
 import { model, Schema } from 'mongoose';
 import validator from 'validator';
 
+const PASSWORD_REGEXP = /password/i;
+
 interface User {
   name: string;
   email: string;
+  password: string;
   age?: number;
   createdAt: Date;
 }
@@ -20,6 +23,17 @@ const userSchema = new Schema<User>(
       validate: (value: string) => {
         if (!validator.isEmail(value)) {
           throw new Error('Email is invalid');
+        }
+      },
+    },
+    password: {
+      type: String,
+      required: true,
+      minlength: 7,
+      trim: true,
+      validate: (value: string) => {
+        if (PASSWORD_REGEXP.test(value)) {
+          throw new Error('Password cannot contain "password"');
         }
       },
     },
