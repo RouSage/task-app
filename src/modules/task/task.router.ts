@@ -14,4 +14,31 @@ router.post('/', (req, res) => {
     });
 });
 
+router.get('/', (_, res) => {
+  TaskModel.find({})
+    .then((tasks) => {
+      res.send(tasks);
+    })
+    .catch((error) => {
+      res.status(500).send(error);
+    });
+});
+
+router.get('/:id', (req, res) => {
+  const { id } = req.params;
+
+  TaskModel.findById(id)
+    .then((task) => {
+      if (!task) {
+        res.status(404).send();
+        return;
+      }
+
+      res.send(task);
+    })
+    .catch((error) => {
+      res.status(500).send(error);
+    });
+});
+
 export default router;

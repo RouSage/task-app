@@ -14,4 +14,31 @@ router.post('/', (req, res) => {
     });
 });
 
+router.get('/', (_, res) => {
+  UserModel.find({})
+    .then((users) => {
+      res.send(users);
+    })
+    .catch((error) => {
+      res.status(500).send(error);
+    });
+});
+
+router.get('/:id', (req, res) => {
+  const { id } = req.params;
+
+  UserModel.findById(id)
+    .then((user) => {
+      if (!user) {
+        res.status(404).send();
+        return;
+      }
+
+      res.send(user);
+    })
+    .catch((error) => {
+      res.status(500).send(error);
+    });
+});
+
 export default router;
