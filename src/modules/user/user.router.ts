@@ -39,4 +39,35 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+router.patch('/:id', async (req, res) => {
+  const { id } = req.params;
+
+  const updates = Object.keys(req.body);
+  const allowedUpdates = ['name', 'email', 'password', 'age'];
+  const isValidOperation = updates.every((update) =>
+    allowedUpdates.includes(update)
+  );
+
+  if (!isValidOperation) {
+    res.status(400).send({ error: 'Invalid updates!' });
+    return;
+  }
+
+  try {
+    const user = await UserModel.findByIdAndUpdate(id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!user) {
+      res.status(404).send();
+      return;
+    }
+
+    res.send(user);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
+
 export default router;
