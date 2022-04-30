@@ -66,7 +66,23 @@ router.patch('/:id', async (req, res) => {
 
     res.send(user);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(500).send(error);
+  }
+});
+
+router.delete('/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await UserModel.findByIdAndDelete(id);
+
+    if (!user) {
+      res.status(404).send();
+    }
+
+    res.send(user);
+  } catch (error) {
+    res.status(500).send(error);
   }
 });
 

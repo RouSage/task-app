@@ -66,7 +66,23 @@ router.patch('/:id', async (req, res) => {
 
     res.send(task);
   } catch (error) {
-    res.status(400).send(error);
+    res.status(500).send(error);
+  }
+});
+
+router.delete('/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const task = TaskModel.findByIdAndDelete(id);
+
+    if (!task) {
+      res.status(404).send();
+    }
+
+    res.send(task);
+  } catch (error) {
+    res.status(500).send();
   }
 });
 
