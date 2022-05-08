@@ -1,7 +1,9 @@
-import { model, Schema } from 'mongoose';
+import bcrypt from 'bcryptjs';
+import { model, Schema, HydratedDocument } from 'mongoose';
 import validator from 'validator';
 
 const PASSWORD_REGEXP = /password/i;
+const SALT_FACTOR = 8;
 
 interface User {
   name: string;
@@ -51,5 +53,15 @@ const userSchema = new Schema<User>(
     timestamps: true,
   }
 );
+
+userSchema.pre<HydratedDocument<User>>('save', async function (next) {
+  const user = this;
+
+  if (user.isModified('password')) {
+    user.password = await bcrypt.hash(user.password, SALT_FACTOR);
+  }
+
+  next();
+});
 
 export const UserModel = model<User>('User', userSchema);
