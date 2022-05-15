@@ -4,29 +4,6 @@ import { User } from './user.model';
 
 const router = express.Router();
 
-// Create user
-router.post('/', async (req, res) => {
-  try {
-    const user = await User.create(req.body);
-    res.status(201).send(user);
-  } catch (error) {
-    res.status(400).send(error);
-  }
-});
-
-// Login
-router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
-    const user = await User.findByCredentials(email, password);
-
-    res.send(user);
-  } catch (error) {
-    res.status(400).send();
-  }
-});
-
 // Get all users
 router.get('/', async (_, res) => {
   try {

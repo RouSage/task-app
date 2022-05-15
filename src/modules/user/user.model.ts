@@ -1,19 +1,28 @@
 import bcrypt from 'bcryptjs';
-import { Model, model, Schema, HydratedDocument } from 'mongoose';
+import { Model, model, Schema, HydratedDocument, Types } from 'mongoose';
 import validator from 'validator';
 
 const PASSWORD_REGEXP = /password/i;
 const SALT_FACTOR = 8;
 
-//
-// User model definition
-//
+/**
+ * Type to store the user's auth token
+ */
+interface IAuthToken {
+  token: string;
+}
+
+/**
+ * User model definition
+ */
 interface IUser {
   name: string;
   email: string;
   password: string;
   age?: number;
+  tokens: Types.Array<IAuthToken>;
   createdAt: Date;
+  updatedAt: Date;
 }
 
 //
@@ -64,6 +73,14 @@ const userSchema = new Schema<IUser, UserModel>(
         }
       },
     },
+    tokens: [
+      {
+        token: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
   },
   {
     timestamps: true,
