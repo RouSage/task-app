@@ -1,32 +1,48 @@
 import express from 'express';
 
-import { UserModel } from './user.model';
+import { User } from './user.model';
 
 const router = express.Router();
 
+// Create user
 router.post('/', async (req, res) => {
   try {
-    const user = await UserModel.create(req.body);
+    const user = await User.create(req.body);
     res.status(201).send(user);
   } catch (error) {
     res.status(400).send(error);
   }
 });
 
+// Login
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findByCredentials(email, password);
+
+    res.send(user);
+  } catch (error) {
+    res.status(400).send();
+  }
+});
+
+// Get all users
 router.get('/', async (_, res) => {
   try {
-    const users = await UserModel.find({});
+    const users = await User.find({});
     res.send(users);
   } catch (error) {
     res.status(500).send(error);
   }
 });
 
+// Get by ID
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
 
   try {
-    const user = await UserModel.findById(id);
+    const user = await User.findById(id);
 
     if (!user) {
       res.status(404).send();
@@ -39,6 +55,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// Update by ID
 router.patch('/:id', async (req, res) => {
   const { id } = req.params;
 
@@ -54,7 +71,7 @@ router.patch('/:id', async (req, res) => {
   }
 
   try {
-    const user = await UserModel.findById(id);
+    const user = await User.findById(id);
 
     if (!user) {
       res.status(404).send();
@@ -70,11 +87,12 @@ router.patch('/:id', async (req, res) => {
   }
 });
 
+// Delete by ID
 router.delete('/:id', async (req, res) => {
   const { id } = req.params;
 
   try {
-    const user = await UserModel.findByIdAndDelete(id);
+    const user = await User.findByIdAndDelete(id);
 
     if (!user) {
       res.status(404).send();

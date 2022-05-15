@@ -1,11 +1,14 @@
 import bcrypt from 'bcryptjs';
-import { model, Schema, HydratedDocument } from 'mongoose';
+import { Model, model, Schema, HydratedDocument } from 'mongoose';
 import validator from 'validator';
 
 const PASSWORD_REGEXP = /password/i;
 const SALT_FACTOR = 8;
 
-interface User {
+//
+// User model definition
+//
+interface IUser {
   name: string;
   email: string;
   password: string;
@@ -13,7 +16,20 @@ interface User {
   createdAt: Date;
 }
 
-const userSchema = new Schema<User>(
+//
+// User model's static methods definition
+//
+interface UserModel extends Model<IUser> {
+  findByCredentials(
+    email: string,
+    password: string
+  ): Promise<HydratedDocument<IUser>>;
+}
+
+//
+// Schema
+//
+const userSchema = new Schema<IUser, UserModel>(
   {
     name: { type: String, required: true, trim: true },
     email: {
@@ -54,7 +70,32 @@ const userSchema = new Schema<User>(
   }
 );
 
-userSchema.pre<HydratedDocument<User>>('save', async function (next) {
+//
+// Static methods
+//
+userSchema.static(
+  'findByCredentials',
+  async function findByCredentials(email: string, password: string) {
+    const user = await this.findOne({ email });
+
+    if (!user) {
+      throw new Error('Unable to login');
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      throw new Error('Unable to login');
+    }
+
+    return user;
+  }
+);
+
+//
+// Hooks
+//
+userSchema.pre<HydratedDocument<IUser>>('save', async function (next) {
   const user = this;
 
   if (user.isModified('password')) {
@@ -64,4 +105,4 @@ userSchema.pre<HydratedDocument<User>>('save', async function (next) {
   next();
 });
 
-export const UserModel = model<User>('User', userSchema);
+export const User = model<IUser, UserModel>('User', userSchema);
