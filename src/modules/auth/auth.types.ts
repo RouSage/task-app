@@ -1,4 +1,7 @@
 import { Express, Request } from 'express';
+import { HydratedDocument } from 'mongoose';
+
+import { IUser } from '@modules/user/user.model';
 
 /**
  * Typed "req.body"
@@ -10,7 +13,8 @@ export interface IAuthRequestBody<T> extends Express.Request {
  * Auth middleware request object that contains a user
  */
 export interface IAuthRequest extends Request {
-  user?: any;
+  token?: string;
+  user?: HydratedDocument<IUser>;
 }
 /**
  * Payload passed into and decoded from JWT

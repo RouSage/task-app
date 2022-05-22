@@ -3,7 +3,8 @@ import express from 'express';
 import { User } from '@modules/user/user.model';
 
 import { generateAuthToken } from './auth.helper';
-import { ILoginRequest, IAuthRequestBody } from './auth.types';
+import { isAuthenticated } from './auth.middleware';
+import { ILoginRequest, IAuthRequestBody, IAuthRequest } from './auth.types';
 
 const router = express.Router();
 
@@ -36,6 +37,34 @@ router.post('/login', async (req: IAuthRequestBody<ILoginRequest>, res) => {
     res.send({ user, token });
   } catch (error) {
     res.status(400).send();
+  }
+});
+
+// Logout the user
+router.post('/logout', isAuthenticated, async (req: IAuthRequest, res) => {
+  const { user, token } = req;
+
+  try {
+    user?.set({ tokens: user?.tokens.filter((t) => t.token !== token) });
+    await user?.save();
+
+    res.send();
+  } catch (e) {
+    res.status(500).send();
+  }
+});
+
+// Logout the user of all sessions
+router.post('/logoutAll', isAuthenticated, async (req: IAuthRequest, res) => {
+  const { user } = req;
+
+  try {
+    user?.set({ tokens: [] });
+    await user?.save();
+
+    res.send();
+  } catch (e) {
+    res.status(500).send();
   }
 });
 
