@@ -2,6 +2,8 @@ import bcrypt from 'bcryptjs';
 import { Model, model, Schema, HydratedDocument, Types } from 'mongoose';
 import validator from 'validator';
 
+import { removeKeysFromObj } from '@utils';
+
 const PASSWORD_REGEXP = /password/i;
 const SALT_FACTOR = 8;
 
@@ -25,20 +27,24 @@ export interface IUser {
   updatedAt: Date;
 }
 
+interface IUserMethods {
+  toJSON(): HydratedDocument<Omit<IUser, 'password' | 'tokens'>>;
+}
+
 //
 // User model's static methods definition
 //
-interface UserModel extends Model<IUser> {
+interface UserModel extends Model<IUser, {}, IUserMethods> {
   findByCredentials(
     email: string,
     password: string
-  ): Promise<HydratedDocument<IUser>>;
+  ): Promise<HydratedDocument<IUser, IUserMethods>>;
 }
 
 //
 // Schema
 //
-const userSchema = new Schema<IUser, UserModel>(
+const userSchema = new Schema<IUser, UserModel, IUserMethods>(
   {
     name: { type: String, required: true, trim: true },
     email: {
@@ -86,6 +92,15 @@ const userSchema = new Schema<IUser, UserModel>(
     timestamps: true,
   }
 );
+
+//
+// Instance methods
+//
+userSchema.method<HydratedDocument<IUser>>('toJSON', function toJSON() {
+  const user = this.toObject();
+
+  return removeKeysFromObj(['password', 'tokens'], user);
+});
 
 //
 // Static methods

@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-import authConfig from 'config/auth.config';
+import { authConfig } from '@config';
 
 import { IJwtPayload } from './auth.types';
 
