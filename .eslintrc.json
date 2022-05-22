@@ -22,6 +22,7 @@
         "import"
     ],
     "rules": {
+        "@typescript-eslint/naming-convention": "off",
         "import/no-unresolved": "error",
         "import/no-self-import": "error",
         "import/no-cycle": "error",

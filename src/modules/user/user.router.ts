@@ -1,17 +1,15 @@
 import express from 'express';
 
+import { isAuthenticated } from '@modules/auth/auth.middleware';
+import { IAuthRequest } from '@modules/auth/auth.types';
+
 import { User } from './user.model';
 
 const router = express.Router();
 
-// Get all users
-router.get('/', async (_, res) => {
-  try {
-    const users = await User.find({});
-    res.send(users);
-  } catch (error) {
-    res.status(500).send(error);
-  }
+// Get the user's info
+router.get('/me', isAuthenticated, async (req: IAuthRequest, res) => {
+  res.send(req.user);
 });
 
 // Get by ID

@@ -1,4 +1,4 @@
-import { Express } from 'express';
+import { Express, Request } from 'express';
 
 /**
  * Typed "req.body"
@@ -6,7 +6,12 @@ import { Express } from 'express';
 export interface IAuthRequestBody<T> extends Express.Request {
   body: T;
 }
-
+/**
+ * Auth middleware request object that contains a user
+ */
+export interface IAuthRequest extends Request {
+  user?: any;
+}
 /**
  * Payload passed into and decoded from JWT
  */

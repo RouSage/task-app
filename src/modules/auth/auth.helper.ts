@@ -9,3 +9,10 @@ import { IJwtPayload } from './auth.types';
  */
 export const generateAuthToken = (payload: IJwtPayload) =>
   jwt.sign(payload, authConfig.jwtSecret, { expiresIn: '7d' });
+
+/**
+ * Decode a JWT auth token
+ * @param token Auth token to decode
+ */
+export const verifyAuthToken = (token: string) =>
+  jwt.verify(token, authConfig.jwtSecret);
