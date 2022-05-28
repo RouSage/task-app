@@ -1,12 +1,21 @@
 import express from 'express';
 
-import { TaskModel } from './task.model';
+import { isAuthenticated } from '@modules/auth/auth.middleware';
+import { IAuthRequest } from '@modules/auth/auth.types';
+
+import { ITask, Task } from './task.model';
 
 const router = express.Router();
 
-router.post('/', async (req, res) => {
+router.post('/', isAuthenticated, async (req: IAuthRequest, res) => {
+  const task = new Task<ITask>({
+    ...req.body,
+    owner: req.user?._id,
+  });
+
   try {
-    const task = await TaskModel.create(req.body);
+    await task.save();
+
     res.status(201).send(task);
   } catch (error) {
     res.status(400).send(error);
@@ -15,7 +24,7 @@ router.post('/', async (req, res) => {
 
 router.get('/', async (_, res) => {
   try {
-    const tasks = await TaskModel.find({});
+    const tasks = await Task.find({});
     res.send(tasks);
   } catch (error) {
     res.status(500).send(error);
@@ -26,7 +35,7 @@ router.get('/:id', async (req, res) => {
   const { id } = req.params;
 
   try {
-    const task = await TaskModel.findById(id);
+    const task = await Task.findById(id);
 
     if (!task) {
       res.status(404).send();
@@ -54,7 +63,7 @@ router.patch('/:id', async (req, res) => {
   }
 
   try {
-    const task = await TaskModel.findById(id);
+    const task = await Task.findById(id);
 
     if (!task) {
       res.status(404).send();
@@ -74,7 +83,7 @@ router.delete('/:id', async (req, res) => {
   const { id } = req.params;
 
   try {
-    const task = TaskModel.findByIdAndDelete(id);
+    const task = Task.findByIdAndDelete(id);
 
     if (!task) {
       res.status(404).send();

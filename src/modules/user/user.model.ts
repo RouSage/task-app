@@ -4,6 +4,7 @@ import validator from 'validator';
 
 import { removeKeysFromObj } from '@utils';
 
+export const USER_MODEL_NAME = 'User';
 export const VALID_UPDATES = ['name', 'email', 'password', 'age'];
 const PASSWORD_REGEXP = /password/i;
 const SALT_FACTOR = 8;
@@ -138,4 +139,4 @@ userSchema.pre<HydratedDocument<IUser>>('save', async function (next) {
   next();
 });
 
-export const User = model<IUser, UserModel>('User', userSchema);
+export const User = model<IUser, UserModel>(USER_MODEL_NAME, userSchema);
