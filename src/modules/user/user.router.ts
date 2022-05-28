@@ -7,27 +7,9 @@ import { User } from './user.model';
 
 const router = express.Router();
 
-// Get the user's info
+// Get the user's own info (profile)
 router.get('/me', isAuthenticated, async (req: IAuthRequest, res) => {
   res.send(req.user);
-});
-
-// Get by ID
-router.get('/:id', async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    const user = await User.findById(id);
-
-    if (!user) {
-      res.status(404).send();
-      return;
-    }
-
-    res.send(user);
-  } catch (error) {
-    res.status(500).send(error);
-  }
 });
 
 // Update by ID
