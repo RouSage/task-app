@@ -1,9 +1,5 @@
 import { model, Schema, Types } from 'mongoose';
 
-import { USER_MODEL_NAME } from '@modules/user/user.model';
-
-export const TASK_MODEL_NAME = 'Task';
-
 export interface ITask {
   description: string;
   completed?: boolean;
@@ -17,11 +13,11 @@ const taskSchema = new Schema<ITask>(
     completed: { type: Boolean, default: false },
     owner: {
       type: Schema.Types.ObjectId,
-      ref: USER_MODEL_NAME,
+      ref: 'User',
       required: true,
     },
   },
   { timestamps: true }
 );
 
-export const Task = model<ITask>(TASK_MODEL_NAME, taskSchema);
+export const Task = model<ITask>('Task', taskSchema);

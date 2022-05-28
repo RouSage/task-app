@@ -4,7 +4,6 @@ import validator from 'validator';
 
 import { removeKeysFromObj } from '@utils';
 
-export const USER_MODEL_NAME = 'User';
 export const VALID_UPDATES = ['name', 'email', 'password', 'age'];
 const PASSWORD_REGEXP = /password/i;
 const SALT_FACTOR = 8;
@@ -96,6 +95,15 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 );
 
 //
+// Virtuals
+//
+userSchema.virtual('tasks', {
+  ref: 'Task',
+  localField: '_id',
+  foreignField: 'owner',
+});
+
+//
 // Instance methods
 //
 userSchema.method<HydratedDocument<IUser>>('toJSON', function toJSON() {
@@ -139,4 +147,4 @@ userSchema.pre<HydratedDocument<IUser>>('save', async function (next) {
   next();
 });
 
-export const User = model<IUser, UserModel>(USER_MODEL_NAME, userSchema);
+export const User = model<IUser, UserModel>('User', userSchema);
