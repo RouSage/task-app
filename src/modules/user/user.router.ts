@@ -3,7 +3,7 @@ import express from 'express';
 import { isAuthenticated } from '@modules/auth/auth.middleware';
 import { IAuthRequest } from '@modules/auth/auth.types';
 
-import { User } from './user.model';
+import { isValidUpdate } from './user.helper';
 
 const router = express.Router();
 
@@ -12,15 +12,12 @@ router.get('/me', isAuthenticated, async (req: IAuthRequest, res) => {
   res.send(req.user);
 });
 
-// Update by ID
-router.patch('/:id', async (req, res) => {
-  const { id } = req.params;
+// Update User
+router.patch('/me', isAuthenticated, async (req: IAuthRequest, res) => {
+  const { user, body } = req;
 
-  const updates = Object.keys(req.body);
-  const allowedUpdates = ['name', 'email', 'password', 'age'];
-  const isValidOperation = updates.every((update) =>
-    allowedUpdates.includes(update)
-  );
+  const updates = Object.keys(body);
+  const isValidOperation = isValidUpdate(updates);
 
   if (!isValidOperation) {
     res.status(400).send({ error: 'Invalid updates!' });
@@ -28,15 +25,8 @@ router.patch('/:id', async (req, res) => {
   }
 
   try {
-    const user = await User.findById(id);
-
-    if (!user) {
-      res.status(404).send();
-      return;
-    }
-
-    updates.forEach((update) => user.set(update, req.body[update]));
-    await user.save();
+    updates.forEach((update) => user?.set(update, req.body[update]));
+    await user?.save();
 
     res.send(user);
   } catch (error) {
@@ -44,16 +34,12 @@ router.patch('/:id', async (req, res) => {
   }
 });
 
-// Delete by ID
-router.delete('/:id', async (req, res) => {
-  const { id } = req.params;
+// Delete User
+router.delete('/me', isAuthenticated, async (req: IAuthRequest, res) => {
+  const { user } = req;
 
   try {
-    const user = await User.findByIdAndDelete(id);
-
-    if (!user) {
-      res.status(404).send();
-    }
+    await user?.remove();
 
     res.send(user);
   } catch (error) {

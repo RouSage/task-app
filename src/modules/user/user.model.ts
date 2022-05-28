@@ -4,6 +4,7 @@ import validator from 'validator';
 
 import { removeKeysFromObj } from '@utils';
 
+export const VALID_UPDATES = ['name', 'email', 'password', 'age'];
 const PASSWORD_REGEXP = /password/i;
 const SALT_FACTOR = 8;
 
