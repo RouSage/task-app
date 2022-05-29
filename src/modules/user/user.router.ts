@@ -2,8 +2,9 @@ import express from 'express';
 
 import { isAuthenticated } from '@modules/auth/auth.middleware';
 import { IAuthRequest } from '@modules/auth/auth.types';
+import { checkIfIncludes } from '@utils';
 
-import { isValidUpdate } from './user.helper';
+import { VALID_UPDATES } from './user.model';
 
 const router = express.Router();
 
@@ -17,7 +18,7 @@ router.patch('/me', isAuthenticated, async (req: IAuthRequest, res) => {
   const { user, body } = req;
 
   const updates = Object.keys(body);
-  const isValidOperation = isValidUpdate(updates);
+  const isValidOperation = checkIfIncludes(VALID_UPDATES, updates);
 
   if (!isValidOperation) {
     res.status(400).send({ error: 'Invalid updates!' });

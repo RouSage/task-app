@@ -2,11 +2,13 @@ import express from 'express';
 
 import { isAuthenticated } from '@modules/auth/auth.middleware';
 import { IAuthRequest } from '@modules/auth/auth.types';
+import { checkIfIncludes } from '@utils';
 
-import { ITask, Task } from './task.model';
+import { ITask, Task, VALID_UPDATES } from './task.model';
 
 const router = express.Router();
 
+// Create task
 router.post('/', isAuthenticated, async (req: IAuthRequest, res) => {
   const task = new Task<ITask>({
     ...req.body,
@@ -22,20 +24,26 @@ router.post('/', isAuthenticated, async (req: IAuthRequest, res) => {
   }
 });
 
-router.get('/', async (_, res) => {
+// Get all tasks
+router.get('/', isAuthenticated, async (req: IAuthRequest, res) => {
+  const { user } = req;
+
   try {
-    const tasks = await Task.find({});
+    const tasks = await Task.find({ owner: user?._id });
+
     res.send(tasks);
   } catch (error) {
     res.status(500).send(error);
   }
 });
 
-router.get('/:id', async (req, res) => {
+// Get task by ID
+router.get('/:id', isAuthenticated, async (req: IAuthRequest, res) => {
+  const { user } = req;
   const { id } = req.params;
 
   try {
-    const task = await Task.findById(id);
+    const task = await Task.findOne({ _id: id, owner: user?._id });
 
     if (!task) {
       res.status(404).send();
@@ -48,14 +56,13 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.patch('/:id', async (req, res) => {
+// Update task
+router.patch('/:id', isAuthenticated, async (req: IAuthRequest, res) => {
+  const { user } = req;
   const { id } = req.params;
 
   const updates = Object.keys(req.body);
-  const allowedUpdates = ['description', 'completed'];
-  const isValidOperation = updates.every((update) =>
-    allowedUpdates.includes(update)
-  );
+  const isValidOperation = checkIfIncludes(VALID_UPDATES, updates);
 
   if (!isValidOperation) {
     res.status(400).send({ error: 'Invalid updates!' });
@@ -63,7 +70,7 @@ router.patch('/:id', async (req, res) => {
   }
 
   try {
-    const task = await Task.findById(id);
+    const task = await Task.findOne({ _id: id, owner: user?._id });
 
     if (!task) {
       res.status(404).send();
@@ -79,11 +86,13 @@ router.patch('/:id', async (req, res) => {
   }
 });
 
-router.delete('/:id', async (req, res) => {
+// Delete task
+router.delete('/:id', isAuthenticated, async (req: IAuthRequest, res) => {
+  const { user } = req;
   const { id } = req.params;
 
   try {
-    const task = Task.findByIdAndDelete(id);
+    const task = await Task.findOneAndDelete({ _id: id, owner: user?._id });
 
     if (!task) {
       res.status(404).send();

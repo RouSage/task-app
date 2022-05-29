@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import { Model, model, Schema, HydratedDocument, Types } from 'mongoose';
 import validator from 'validator';
 
+import { Task } from '@modules/task/task.model';
 import { removeKeysFromObj } from '@utils';
 
 export const VALID_UPDATES = ['name', 'email', 'password', 'age'];
@@ -137,12 +138,23 @@ userSchema.static(
 //
 // Hooks
 //
-userSchema.pre<HydratedDocument<IUser>>('save', async function (next) {
+
+// Hash the password before saving
+userSchema.pre('save', async function (next) {
   const user = this;
 
   if (user.isModified('password')) {
     user.password = await bcrypt.hash(user.password, SALT_FACTOR);
   }
+
+  next();
+});
+
+// Delete the tasks when the user is removed
+userSchema.pre('remove', async function (next) {
+  const user = this;
+
+  await Task.deleteMany({ owner: user._id });
 
   next();
 });

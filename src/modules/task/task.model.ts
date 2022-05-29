@@ -1,5 +1,7 @@
 import { model, Schema, Types } from 'mongoose';
 
+export const VALID_UPDATES = ['description', 'completed'];
+
 export interface ITask {
   description: string;
   completed?: boolean;
