@@ -2,7 +2,7 @@ import express from 'express';
 
 import { isAuthenticated } from '@modules/auth/auth.middleware';
 import { IAuthRequest } from '@modules/auth/auth.types';
-import { checkIfIncludes } from '@utils';
+import { checkIfIncludes, isNil } from '@utils';
 
 import { ITask, Task, VALID_UPDATES } from './task.model';
 
@@ -25,11 +25,29 @@ router.post('/', isAuthenticated, async (req: IAuthRequest, res) => {
 });
 
 // Get all tasks
+// GET /tasks?completed=(true|false)
+// GET /tasks?limit=(number)&skip=(number)
+// GET /tasks?sortBy=createdAt_desc
 router.get('/', isAuthenticated, async (req: IAuthRequest, res) => {
   const { user } = req;
+  const { completed, limit, skip, sortBy } = req.query;
+
+  const match: Record<string, any> = {};
+  const sort: Record<string, any> = {};
+
+  if (!isNil(completed)) {
+    match.completed = completed;
+  }
+  if (!isNil(sortBy)) {
+    const [field, order] = String(sortBy).split('_');
+    sort[field] = order;
+  }
 
   try {
-    const tasks = await Task.find({ owner: user?._id });
+    const tasks = await Task.find({ owner: user?._id, ...match })
+      .skip(Number(skip))
+      .limit(Number(limit))
+      .sort(sort);
 
     res.send(tasks);
   } catch (error) {

@@ -7,6 +7,7 @@ export interface ITask {
   completed?: boolean;
   owner: Types.ObjectId;
   createdAt: Date;
+  updatedAt: Date;
 }
 
 const taskSchema = new Schema<ITask>(
