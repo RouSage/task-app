@@ -22,12 +22,16 @@ const upload = multer({
   },
 });
 
-// Get the user's own info (profile)
+//
+// GET user's info (profile)
+//
 router.get('/me', isAuthenticated, async (req: IAuthRequest, res) => {
   res.send(req.user);
 });
 
-// Update User
+//
+// UPDATE User
+//
 router.patch('/me', isAuthenticated, async (req: IAuthRequest, res) => {
   const { user, body } = req;
 
@@ -49,7 +53,9 @@ router.patch('/me', isAuthenticated, async (req: IAuthRequest, res) => {
   }
 });
 
-// Delete User
+//
+// DELETE User
+//
 router.delete('/me', isAuthenticated, async (req: IAuthRequest, res) => {
   const { user } = req;
 
@@ -62,7 +68,9 @@ router.delete('/me', isAuthenticated, async (req: IAuthRequest, res) => {
   }
 });
 
-// Upload avatar
+//
+// UPLOAD user avatar
+//
 router.post(
   '/me/avatar',
   isAuthenticated,
@@ -75,10 +83,27 @@ router.post(
 
     res.send();
   },
+  // https://github.com/expressjs/generator/issues/78
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   (err: any, req: Request, res: Response, next: NextFunction) => {
     res.status(400).send({ error: err.message });
   }
 );
+
+//
+// DELETE user avatar
+//
+router.delete('/me/avatar', isAuthenticated, async (req: IAuthRequest, res) => {
+  const { user } = req;
+
+  try {
+    user?.set({ avatar: null });
+    await user?.save();
+
+    res.send();
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
 
 export default router;

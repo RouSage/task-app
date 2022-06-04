@@ -8,7 +8,9 @@ import { ITask, Task, VALID_UPDATES } from './task.model';
 
 const router = express.Router();
 
-// Create task
+//
+// CREATE task
+//
 router.post('/', isAuthenticated, async (req: IAuthRequest, res) => {
   const task = new Task<ITask>({
     ...req.body,
@@ -24,10 +26,12 @@ router.post('/', isAuthenticated, async (req: IAuthRequest, res) => {
   }
 });
 
-// Get all tasks
+//
+// GET all tasks
 // GET /tasks?completed=(true|false)
 // GET /tasks?limit=(number)&skip=(number)
 // GET /tasks?sortBy=createdAt_desc
+//
 router.get('/', isAuthenticated, async (req: IAuthRequest, res) => {
   const { user } = req;
   const { completed, limit, skip, sortBy } = req.query;
@@ -55,7 +59,9 @@ router.get('/', isAuthenticated, async (req: IAuthRequest, res) => {
   }
 });
 
-// Get task by ID
+//
+// GET task by ID
+//
 router.get('/:id', isAuthenticated, async (req: IAuthRequest, res) => {
   const { user } = req;
   const { id } = req.params;
@@ -74,7 +80,9 @@ router.get('/:id', isAuthenticated, async (req: IAuthRequest, res) => {
   }
 });
 
-// Update task
+//
+// UPDATE task
+//
 router.patch('/:id', isAuthenticated, async (req: IAuthRequest, res) => {
   const { user } = req;
   const { id } = req.params;
@@ -104,7 +112,9 @@ router.patch('/:id', isAuthenticated, async (req: IAuthRequest, res) => {
   }
 });
 
-// Delete task
+//
+// DELETE task
+//
 router.delete('/:id', isAuthenticated, async (req: IAuthRequest, res) => {
   const { user } = req;
   const { id } = req.params;
