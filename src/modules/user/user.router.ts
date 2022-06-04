@@ -5,7 +5,7 @@ import { isAuthenticated } from '@modules/auth/auth.middleware';
 import { IAuthRequest } from '@modules/auth/auth.types';
 import { checkIfIncludes } from '@utils';
 
-import { AVATAR_REGEX, VALID_UPDATES } from './user.model';
+import { AVATAR_REGEX, User, VALID_UPDATES } from './user.model';
 
 const router = express.Router();
 const upload = multer({
@@ -103,6 +103,26 @@ router.delete('/me/avatar', isAuthenticated, async (req: IAuthRequest, res) => {
     res.send();
   } catch (error) {
     res.status(500).send(error);
+  }
+});
+
+//
+// GET user avatar
+//
+router.get('/:id/avatar', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findById(id);
+
+    if (!user || !user.avatar) {
+      throw new Error();
+    }
+
+    res.setHeader('Content-Type', 'image/jpg');
+    res.send(user.avatar);
+  } catch (error) {
+    res.status(404).send(error);
   }
 });
 
