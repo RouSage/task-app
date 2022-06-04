@@ -1,12 +1,26 @@
-import express from 'express';
+import express, { NextFunction, Request, Response } from 'express';
+import multer from 'multer';
 
 import { isAuthenticated } from '@modules/auth/auth.middleware';
 import { IAuthRequest } from '@modules/auth/auth.types';
 import { checkIfIncludes } from '@utils';
 
-import { VALID_UPDATES } from './user.model';
+import { AVATAR_REGEX, VALID_UPDATES } from './user.model';
 
 const router = express.Router();
+const upload = multer({
+  limits: {
+    fileSize: 2000000,
+  },
+  fileFilter(req, file, cb) {
+    if (!file.originalname.match(AVATAR_REGEX)) {
+      cb(new Error('Please upload an image'));
+      return;
+    }
+
+    cb(null, true);
+  },
+});
 
 // Get the user's own info (profile)
 router.get('/me', isAuthenticated, async (req: IAuthRequest, res) => {
@@ -47,5 +61,24 @@ router.delete('/me', isAuthenticated, async (req: IAuthRequest, res) => {
     res.status(500).send(error);
   }
 });
+
+// Upload avatar
+router.post(
+  '/me/avatar',
+  isAuthenticated,
+  upload.single('avatar'),
+  async (req: IAuthRequest, res: Response) => {
+    const { user, file } = req;
+
+    user?.set({ avatar: file?.buffer });
+    await user?.save();
+
+    res.send();
+  },
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  (err: any, req: Request, res: Response, next: NextFunction) => {
+    res.status(400).send({ error: err.message });
+  }
+);
 
 export default router;

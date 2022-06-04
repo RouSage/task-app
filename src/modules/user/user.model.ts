@@ -6,6 +6,7 @@ import { Task } from '@modules/task/task.model';
 import { removeKeysFromObj } from '@utils';
 
 export const VALID_UPDATES = ['name', 'email', 'password', 'age'];
+export const AVATAR_REGEX = /\.(jpe?g|png)$/;
 const PASSWORD_REGEXP = /password/i;
 const SALT_FACTOR = 8;
 
@@ -23,6 +24,7 @@ export interface IUser {
   name: string;
   email: string;
   password: string;
+  avatar?: Buffer;
   age?: number;
   tokens: Types.Array<IAuthToken>;
   createdAt: Date;
@@ -71,6 +73,9 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
           throw new Error('Password cannot contain "password"');
         }
       },
+    },
+    avatar: {
+      type: Buffer,
     },
     age: {
       type: Number,
