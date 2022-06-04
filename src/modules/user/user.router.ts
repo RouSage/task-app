@@ -1,5 +1,6 @@
 import express, { NextFunction, Request, Response } from 'express';
 import multer from 'multer';
+import sharp from 'sharp';
 
 import { isAuthenticated } from '@modules/auth/auth.middleware';
 import { IAuthRequest } from '@modules/auth/auth.types';
@@ -78,7 +79,12 @@ router.post(
   async (req: IAuthRequest, res: Response) => {
     const { user, file } = req;
 
-    user?.set({ avatar: file?.buffer });
+    const buffer = await sharp(file?.buffer)
+      .resize({ width: 250, height: 250 })
+      .png()
+      .toBuffer();
+
+    user?.set({ avatar: buffer });
     await user?.save();
 
     res.send();
@@ -119,7 +125,7 @@ router.get('/:id/avatar', async (req, res) => {
       throw new Error();
     }
 
-    res.setHeader('Content-Type', 'image/jpg');
+    res.setHeader('Content-Type', 'image/png');
     res.send(user.avatar);
   } catch (error) {
     res.status(404).send(error);

@@ -31,8 +31,11 @@ export interface IUser {
   updatedAt: Date;
 }
 
+//
+// User model's instance methods definition
+//
 interface IUserMethods {
-  toJSON(): HydratedDocument<Omit<IUser, 'password' | 'tokens'>>;
+  toJSON(): HydratedDocument<Omit<IUser, 'password' | 'tokens' | 'avatar'>>;
 }
 
 //
@@ -115,7 +118,7 @@ userSchema.virtual('tasks', {
 userSchema.method<HydratedDocument<IUser>>('toJSON', function toJSON() {
   const user = this.toObject();
 
-  return removeKeysFromObj(['password', 'tokens'], user);
+  return removeKeysFromObj(['password', 'tokens', 'avatar'], user);
 });
 
 //
