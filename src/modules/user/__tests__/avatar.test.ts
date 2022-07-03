@@ -5,26 +5,22 @@ import app from 'app';
 import { USER_ONE } from '../testData';
 import { User } from '../user.model';
 
-describe('DELETE User endpoint', () => {
+describe('UPLOAD User avatar', () => {
   beforeEach(async () => {
     await User.deleteMany();
     await User.create(USER_ONE);
   });
 
-  it('should delete account for user', async () => {
+  it('should upload avatar image', async () => {
     const { _id, tokens } = USER_ONE;
 
     await request(app)
-      .delete('/users/me')
+      .post('/users/me/avatar')
       .set('Authorization', `Bearer ${tokens[0].token}`)
-      .send()
+      .attach('avatar', 'src/modules/user/__tests__/fixtures/profile-pic.jpg')
       .expect(200);
 
     const user = await User.findById(_id);
-    expect(user).toBeNull();
-  });
-
-  it('should not delete account for unauthenticated user', async () => {
-    await request(app).delete('/users/me').send().expect(401);
+    expect(user?.avatar).toEqual(expect.any(Buffer));
   });
 });
